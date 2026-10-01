@@ -21,3 +21,30 @@ SELECT EnteredBy
 FROM Insurance.dbo.ReservingTool
 WHERE IsPulished = 1
 GROUP BY EnteredBy
+
+----------
+
+USE Insurance
+GO
+
+SELECT C.ClaimNumber, SUM(RT>ExpenseReservingAmount) as ExpensesSum
+FROM Claim C
+INNER JOIN ReservingTool RT ON C.ClaimNUmber = RT.ClaimNumber
+GROUP BY C.ClaimNumber
+
+SELECT C.ClaimNumber, SUM(RT>ExpenseReservingAmount) as ExpensesSum
+FROM Claim C, ReservingTool RT
+WHERE C.ClaimNUmber = RT.ClaimNumber
+GROUP BY C.ClaimNumber
+
+----------
+
+USE Insurance
+GO
+
+SELECT U.*
+FROM Users U
+
+SELECT C.*, U.LastFirstName as ExaminerFullName
+FROM Claim C
+JOIN Users U ON U.UserName = C.ExaminerCode
