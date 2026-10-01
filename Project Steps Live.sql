@@ -1,4 +1,7 @@
 --Step 2
+SELECT *
+FROM
+(
 SELECT
     C.ClaimNumber
     , R.ReserveAmount
@@ -36,3 +39,20 @@ LEFT JOIN Patient P ON P.PatientId = CL.PatientID
 WHERE O.OfficeDesc IN ('Sacramento', 'San Francisco', 'San Diego')
     AND (RT.ParentID IN (1, 2, 3, 4, 5) or rt.reserveTypeID IN (1, 2, 3, 4, 5))
     AND (CS.ClaimStatusID = 1 OR (CS.ClaimStatusID = 2 AND CL.ReopenedReasonID <> 3))
+) BaseData
+PIVOT
+(SUM(ReserveAmount)
+    FOR ReserveTypeBucketID IN ([1], [2], [3], [4], [5])
+) PivotTable
+WHERE PivotTable.ClaimantTypeDesct IN ('First Aid', 'Medical Only')
+    OR
+        (PivotTable.Office = 'San Diego'
+            AND ISNULL([1], 0) + ISNULL([2], 0) + ISNULL([3], 0)
+                + ISNULL([4], 0) + ISNULL([5], 0) >= PivotTable.ReserveLimit)
+    OR
+        (PivotTable.Office IN ('Sacramento' , 'San Francisco')
+            AND (ISNULL([1], 0) > 800
+                OR ISNULL([5], 0) > 100
+                OR (ISNULL([2], 0) + ISNULL([3], 0) +ISNULL([4], 0) > 0)
+                )
+        )
